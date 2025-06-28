@@ -13,18 +13,19 @@
         const viewerVideoStatus = document.getElementById('viewerVideoStatus');
         
         // Socket.IO and PeerJS setup
-        const socket = io('http://localhost:3000', {
-            path: '/socket.io',
-            transports: ['websocket', 'polling']
-        });
+const socket = io(window.location.origin, {
+  path: '/socket.io',
+  transports: ['websocket', 'polling']
+});
+
         
         // Fix PeerJS initialization
         // Update PeerJS initialization
 const peer = new Peer(undefined, {
-  host: location.hostname,
-  port: location.port || (location.protocol === 'https:' ? 443 : 80),
+  host: window.location.hostname,
+  port: window.location.port || (window.location.protocol === 'https:' ? 443 : 80),
   path: '/peerjs',
-  secure: location.protocol === 'https:'
+  secure: window.location.protocol === 'https:'
 });
 
 peer.on('call', call => {
