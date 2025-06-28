@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Share Pro</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Screen Share Pro</h1>
+            <p class="subtitle">Share your screen with audio in real-time</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="panel">
+                <h2 class="panel-title">
+                    <span>🖥️ Host Session</span>
+                </h2>
+                
+                <div class="form-group">
+                    <label for="password">Session Password</label>
+                    <input type="password" id="password" placeholder="Create a secure password">
+                </div>
+                
+                <button id="startBtn" onclick="startSession()">Start Sharing</button>
+                <button class="secondary hidden" id="stopBtn" onclick="stopSession()">Stop Sharing</button>
+                
+                <div id="hostVideoContainer" class="hidden">
+                    <div id="videoContainer">
+                        <video id="video" autoplay playsinline muted></video>
+                        <div id="status">Disconnected</div>
+                    </div>
+                    
+                    <div class="track-info">
+                        <div class="track-card">
+                            <h4>AUDIO TRACK</h4>
+                            <div class="track-status audio" id="audioStatus">Inactive</div>
+                        </div>
+                        <div class="track-card">
+                            <h4>VIDEO TRACK</h4>
+                            <div class="track-status video" id="videoStatus">Inactive</div>
+                        </div>
+                    </div>
+                    
+                    <div id="sessionInfo" class="hidden">
+                        <div class="instructions">
+                            <p>Share this session ID with viewers:</p>
+                            <h3 id="sessionIdDisplay" style="margin: 10px 0; font-size: 1.8rem;"></h3>
+                            <p>Viewers will need this ID and your password to join</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2 class="panel-title">
+                    <span>👁️ Join Session</span>
+                </h2>
+                
+                <div class="form-group">
+                    <label for="sessionId">Session ID</label>
+                    <input type="text" id="sessionId" placeholder="Enter session ID">
+                </div>
+                
+                <div class="form-group">
+                    <label for="joinPassword">Session Password</label>
+                    <input type="password" id="joinPassword" placeholder="Enter session password">
+                </div>
+                
+                <button id="joinBtn" onclick="joinSession()">Join Session</button>
+                <button class="secondary hidden" id="leaveBtn" onclick="leaveSession()">Leave Session</button>
+                
+                <div id="viewerVideoContainer" class="hidden">
+                    <div id="viewerVideoContainer">
+                        <video id="viewerVideo" autoplay playsinline></video>
+                        <div id="viewerStatus">Not connected</div>
+                    </div>
+                    
+                    <div class="track-info">
+                        <div class="track-card">
+                            <h4>AUDIO TRACK</h4>
+                            <div class="track-status audio" id="viewerAudioStatus">Inactive</div>
+                        </div>
+                        <div class="track-card">
+                            <h4>VIDEO TRACK</h4>
+                            <div class="track-status video" id="viewerVideoStatus">Inactive</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <div id="notificationMessage"></div>
+    </div>
+
+    
+    <script src="script.js"></script>
+</body>
+</html>
