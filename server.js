@@ -23,7 +23,6 @@ const io = socketIO(server, {
     origin: "*",
     methods: ["GET", "POST"]
   },
-  transports: ['websocket', 'polling'],
   allowEIO3: true
 });
 
