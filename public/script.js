@@ -276,6 +276,14 @@ call.on('stream', hostStream => {
     const audio = new Audio();
     audio.srcObject = new MediaStream(hostStream.getAudioTracks());
     audio.autoplay = false;
+const tracks = hostStream.getTracks();
+console.log("All received tracks:", tracks.map(t => `${t.kind} - enabled: ${t.enabled}`));
+
+tracks.forEach(t => {
+  t.onended = () => console.warn(`${t.kind} track ended`);
+  t.onmute = () => console.warn(`${t.kind} track muted`);
+  t.onunmute = () => console.info(`${t.kind} track unmuted`);
+});
 
     // Show a prompt to viewer
     const unmuteButton = document.createElement("button");
