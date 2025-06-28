@@ -263,22 +263,36 @@ async function startSession() {
                     const call = peer.call(peerId, viewerMicStream);
                     
                     // Handle host stream
-                    call.on('stream', hostStream => {
-                        console.log("✅ Received host stream with tracks:", 
-                            hostStream.getTracks().map(t => t.kind));
-                        
-                        viewerVideo.srcObject = hostStream;
-                        viewerVideo.play().catch(e => console.warn("Play error:", e));
-                        
-                        // Monitor tracks
-                        monitorTracks(hostStream, false);
-                        setInterval(() => monitorTracks(hostStream, false), 2000);
-                        
-                        // Play audio
-                        const audio = new Audio();
-                        audio.srcObject = new MediaStream(hostStream.getAudioTracks());
-                        audio.autoplay = true;
-                    });
+                    
+// Autoplay-safe viewer stream handler
+
+call.on('stream', hostStream => {
+    console.log("✅ Received host stream with tracks:", hostStream.getTracks().map(t => t.kind));
+
+    viewerVideo.srcObject = hostStream;
+    viewerVideo.muted = false;
+    viewerVideo.setAttribute("playsinline", true);
+
+    const audio = new Audio();
+    audio.srcObject = new MediaStream(hostStream.getAudioTracks());
+    audio.autoplay = false;
+
+    // Show a prompt to viewer
+    const unmuteButton = document.createElement("button");
+    unmuteButton.textContent = "🔊 Click to Start Audio/Video";
+    unmuteButton.style = "padding:10px;font-size:16px;margin-top:10px;";
+    document.body.appendChild(unmuteButton);
+
+    unmuteButton.onclick = () => {
+        audio.play().catch(err => console.warn("Audio play error:", err));
+        viewerVideo.play().catch(err => console.warn("Video play error:", err));
+        unmuteButton.remove();
+    };
+
+    monitorTracks(hostStream, false);
+    setInterval(() => monitorTracks(hostStream, false), 2000);
+});
+
                     
                     call.on('close', () => {
                         viewerStatus.textContent = "Disconnected";
