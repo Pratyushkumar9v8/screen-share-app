@@ -70,7 +70,7 @@ peer.on('error', (err) => {
 
 function initializePeer() {
   return new Peer(undefined, {
-    host: 'localhost',
+    host: window.location.hostname,
     port: 3001,
     path: '/',
     debug: 3
