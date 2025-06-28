@@ -15,8 +15,10 @@
         // Socket.IO and PeerJS setup
 const socket = io(window.location.origin, {
   path: '/socket.io',
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  secure: true
 });
+
 
         
         // Fix PeerJS initialization
