@@ -130,7 +130,8 @@ function initializePeer() {
             }
         }
         
-// Webcam-based debug version for host
+        // HOST: Start sharing session
+// HOST: Start sharing session
 async function startSession() {
     const password = document.getElementById('password').value;
     if (!password) {
@@ -138,35 +139,43 @@ async function startSession() {
         return;
     }
 
-    let videoStream, micStream;
+    let screenStream, micStream;
     try {
-        // ✅ Use webcam instead of getDisplayMedia
-        videoStream = await navigator.mediaDevices.getUserMedia({
-            video: { width: 1280, height: 720 },
-            audio: false
+        // 1. Capture screen (video only)
+        screenStream = await navigator.mediaDevices.getDisplayMedia({
+            video: { cursor: "always" }
         });
-        console.log("🎥 Webcam video stream tracks:", videoStream.getVideoTracks());
+        console.log("🎥 Screen stream tracks:", screenStream.getVideoTracks());
 
+        // Ensure we actually got video
+        if (screenStream.getVideoTracks().length === 0) {
+            throw new Error("No video track in screen stream");
+        }
+
+        // 2. Capture microphone (audio only)
         micStream = await navigator.mediaDevices.getUserMedia({
             audio: { noiseSuppression: true, echoCancellation: true },
             video: false
         });
         console.log("🎤 Mic stream tracks:", micStream.getAudioTracks());
+
     } catch (err) {
         console.error("Error capturing media:", err);
         showNotification("Media capture failed: " + err.message, true);
         return;
     }
 
+    // 3. Combine into one MediaStream
     const combinedStream = new MediaStream([
-        ...videoStream.getVideoTracks(),
+        ...screenStream.getVideoTracks(),
         ...micStream.getAudioTracks()
     ]);
     console.log("📡 Combined stream tracks:", combinedStream.getTracks());
 
+    // 4. Assign to <video> and update UI
     currentStream = combinedStream;
     video.srcObject = combinedStream;
-    status.textContent = "Sharing webcam...";
+    status.textContent = "Sharing screen...";
     status.classList.add('connected');
 
     document.getElementById('hostVideoContainer').classList.remove('hidden');
@@ -176,7 +185,12 @@ async function startSession() {
     monitorTracks(currentStream);
     setInterval(() => monitorTracks(currentStream), 2000);
 
+    // 5. Notify server and hook up PeerJS call handler
     socket.emit('start-session', { password, peerId: window.peerId });
+
+
+
+
     socket.once('session-started', newSessionId => {
         sessionId = newSessionId;
         document.getElementById('sessionInfo').classList.remove('hidden');
